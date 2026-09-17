@@ -1,0 +1,8 @@
+{
+  "name": "frequency-generator",
+  "private": true,
+  "description": "A web-based frequency generator",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}
