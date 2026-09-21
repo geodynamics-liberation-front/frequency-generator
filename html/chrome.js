@@ -248,7 +248,7 @@ function add_channel() {
   phase_display.className = 'phase_display value_display';
   phase_display.value = '0';
   phase_display.addEventListener('change', function (e) {
-    channel.phase.value = (1000 * phase_display.value) / 360;
+    channel.phase.value = phase_display.value;
     update_wave(channel_id);
     phase_display.blur();
   });
@@ -270,8 +270,11 @@ function add_channel() {
   phase_range.addEventListener('input', function () {
     update_wave(channel_id);
   });
+  // One slider step per degree, so the displayed degrees, the slider position
+  // and the generated phase are always the same number (see update_wave).
   phase_range.min = 0;
-  phase_range.max = 1000;
+  phase_range.max = 360;
+  phase_range.step = 1;
   phase_range.value = 0;
   channel.phase = phase_range;
   phase_input_cell.appendChild(phase_range);
@@ -319,6 +322,13 @@ function add_channel() {
   update_wave(channel_id);
 }
 
+// Phase offset (radians) for a whole number of degrees. Kept as a plain
+// function so it can be unit tested: 180 degrees must give exactly -PI so two
+// equal waves cancel exactly.
+function phase_from_degrees(degrees) {
+  return (-2 * Math.PI * degrees) / 360;
+}
+
 function update_wave(channel_id) {
   var channel = document.getElementById(channel_id);
   // The space used in the format strings below is a non-breaking space
@@ -332,9 +342,11 @@ function update_wave(channel_id) {
   channel.amplitude_display.value = sprintf('%0.1f', A * 100);
   channel.source.A = A;
   // Update Phase
-  var phase = (-2 * Math.PI * parseInt(channel.phase.value)) / 1000;
-  channel.phase_display.value = Math.round((360 * phase) / (-2 * Math.PI));
-  channel.source.phase = phase;
+  // Phase: the slider holds whole degrees, and both the display and the
+  // generated tone use that exact value, so what you see is what you hear.
+  var degrees = parseInt(channel.phase.value);
+  channel.phase_display.value = degrees;
+  channel.source.phase = phase_from_degrees(degrees);
 
   // Push the new parameters to the audio thread so the change is heard
   generator.updateSource(channel_id, channel.source);
@@ -483,4 +495,10 @@ function toggle_multichannel() {
     add_channel();
     getCSSRule('.multichannel').style.display = 'none';
   }
+}
+
+// Expose for unit tests, which load this file in Node. In the browser
+// `module` is undefined, so this is a no-op there.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { phase_from_degrees };
 }
