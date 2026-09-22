@@ -109,3 +109,33 @@ embed {
 .phase_range {
 	width: 100%;
 }
+
+/* Narrow (phone) screens: one control per row instead of three columns.
+   The controls table has a row of labels above a row of sliders; the grid
+   below re-pairs each label with its slider (label 1, slider 1, label 2, ...)
+   so the three columns become a single column. */
+@media (max-width: 600px) {
+	.channel_controls {
+		display: grid;
+		grid-template-columns: 100%;
+	}
+	.channel_controls tbody,
+	.channel_controls tr {
+		display: contents;
+	}
+	/* No display on td: grid items are blockified anyway, and setting it
+	   here would outrank the .multichannel rule that hides the phase cells
+	   in single-channel mode. */
+	.channel_controls td {
+		white-space: nowrap;
+	}
+	.channel_controls tr:first-child td:nth-child(1) { grid-row: 1; }
+	.channel_controls tr:last-child  td:nth-child(1) { grid-row: 2; }
+	.channel_controls tr:first-child td:nth-child(2) { grid-row: 3; }
+	.channel_controls tr:last-child  td:nth-child(2) { grid-row: 4; }
+	.channel_controls tr:first-child td:nth-child(3) { grid-row: 5; }
+	.channel_controls tr:last-child  td:nth-child(3) { grid-row: 6; }
+	.channel_controls input[type='range'] {
+		margin-bottom: 0.5em;
+	}
+}

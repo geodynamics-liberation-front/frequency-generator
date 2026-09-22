@@ -20,7 +20,6 @@ function init() {
   master_graph = new Graph(canvas, { axis_color: 'black' });
   master_graph.axis_y = false;
   master_graph.set_limits(0, display_width, -1, 1);
-  master_graph.x_ticks = get_ticks(8);
   master_graph.tick_format = function (tick) {
     return sprintf('%0.2fm', tick);
   };
@@ -89,7 +88,10 @@ function delete_channel(channel_id) {
   draw_master();
 }
 
-function get_ticks(count) {
+// Ticks for a graph: as many as fit its current width, so that the labels
+// do not overlap on a narrow (phone) screen. Called after graph.reset().
+function get_ticks(graph) {
+  var count = Math.max(2, Math.min(8, Math.floor(graph.width / 90)));
   var delta = display_width / count;
   var ticks = [];
   for (var i = 1; i < count; i++) {
@@ -122,7 +124,6 @@ function add_channel() {
   var graph = new Graph(canvas, { axis_color: 'black' });
   graph.axis_y = false;
   graph.set_limits(0, display_width, -1, 1);
-  graph.x_ticks = get_ticks(8);
   graph.tick_format = function (tick) {
     return sprintf('%0.2fm', tick);
   };
@@ -380,6 +381,7 @@ function draw_master() {
     return y / channel_count;
   };
   master_graph.reset();
+  master_graph.x_ticks = get_ticks(master_graph);
   if (plot_density) {
     master_graph.plotDensity(func);
   }
@@ -400,6 +402,7 @@ function draw_wave(channel_id) {
     return channel.source.waveform(x);
   };
   channel.graph.reset();
+  channel.graph.x_ticks = get_ticks(channel.graph);
   if (plot_density) {
     channel.graph.plotDensity(func);
   }
@@ -425,11 +428,9 @@ function update_display_width() {
   for (channel_id in channels) {
     var channel = channels[channel_id];
     channel.graph.set_x_limits(0, display_width);
-    channel.graph.x_ticks = get_ticks(8);
     draw_wave(channel_id);
   }
   master_graph.set_x_limits(0, display_width);
-  master_graph.x_ticks = get_ticks(8);
   draw_master();
 }
 

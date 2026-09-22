@@ -41,6 +41,8 @@ function Graph(canvas, param) {
   this._y = line(1, 0);
   this.canvas = canvas;
   this.paper = canvas.getContext('2d');
+  this.width = canvas.width;
+  this.height = canvas.height;
 
   this.axis_color = 'gray';
   this.axis_on = true;
@@ -114,7 +116,7 @@ function Graph(canvas, param) {
     this.x_min = Math.min(x_min, x_max);
     this.x_max = Math.max(x_min, x_max);
 
-    var w = this.canvas.width;
+    var w = this.width;
     var m = w / (x_max - x_min);
     var b = (w - m * (x_min + x_max)) / 2;
     this._x = line(m, b);
@@ -128,7 +130,7 @@ function Graph(canvas, param) {
     this.y_min = Math.min(y_min, y_max);
     this.y_max = Math.max(y_min, y_max);
 
-    var h = this.canvas.height;
+    var h = this.height;
     var m = h / (y_min - y_max);
     var b = (h - m * (y_min + y_max)) / 2;
 
@@ -142,7 +144,7 @@ function Graph(canvas, param) {
     this.paper.strokeStyle = this.axis_color;
     this.paper.lineWidth = this.axis_width;
     this.paper.font = this.tick_label_size + 'px sans-serif';
-    var scale = (this.y_max - this.y_min) / this.canvas.height;
+    var scale = (this.y_max - this.y_min) / this.height;
     for (i in this.x_ticks) {
       var tick = this.x_ticks[i];
       this.moveTo(tick, this.ticks_above * scale);
@@ -178,9 +180,9 @@ function Graph(canvas, param) {
   this._draw_grid = _draw_grid;
 
   function plotDensity(f) {
-    var points = this.canvas.width;
-    var scale = (this.x_max - this.x_min) / this.canvas.width;
-    var height = this.canvas.height;
+    var points = this.width;
+    var scale = (this.x_max - this.x_min) / this.width;
+    var height = this.height;
 
     this.paper.beginPath();
     this.paper.strokeStyle = 'red';
@@ -202,8 +204,8 @@ function Graph(canvas, param) {
   this.plotDensity = plotDensity;
 
   function plot(f, color, lineWidth) {
-    var points = this.canvas.width;
-    var scale = (this.x_max - this.x_min) / this.canvas.width;
+    var points = this.width;
+    var scale = (this.x_max - this.x_min) / this.width;
     if (color == undefined) {
       color = 'aqua';
     }
@@ -258,9 +260,15 @@ function Graph(canvas, param) {
     // Make sure it's an even number (looks nicer)
     w = 2 * Math.floor(w / 2);
     h = 2 * Math.floor(h / 2);
-    // Set the canvas width and height
-    this.canvas.width = w;
-    this.canvas.height = h;
+    // Size the bitmap in device pixels and draw in CSS pixels, so the graph
+    // is sharp on high-density (phone) screens. Setting canvas.width resets
+    // the context, so the transform is applied afterwards.
+    var dpr = window.devicePixelRatio || 1;
+    this.width = w;
+    this.height = h;
+    this.canvas.width = Math.round(w * dpr);
+    this.canvas.height = Math.round(h * dpr);
+    this.paper.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Reset the limits (and thus scaling functions
     this.set_limits(this.x_min, this.x_max, this.y_min, this.y_max);
   }

@@ -10,16 +10,15 @@ completely, on screen and in your ears.
 Running it
 ----------
 
-Everything is static; serve the `html/` directory with any web server and
-open `index.html`, e.g.
+Everything is static: the site is the `html/` directory. `make dist` copies
+it into `dist/`, which is how it is published on
+<https://therealglf.org/projects/frequency-generator/>, and `make serve`
+builds it and serves it locally:
 
-    cd html
-    python3 -m http.server 8000
+    make serve
 
-or `make serve`. `make dist` copies the site into `dist/`, which is how it is
-published on https://therealglf.org/projects/frequency-generator/.
-
-then browse to <http://localhost:8000/>.
+then browse to <http://localhost:8000/>. (`make dist` alone builds without
+serving; `make clean` removes `dist/`.)
 
 **Use `localhost` or `127.0.0.1`, not a bare IP or hostname.** Audio is
 generated with an `AudioWorklet`, which browsers only expose in a *secure
@@ -30,6 +29,17 @@ HTTPS.
 
 Audio starts when you click the speaker button (browsers require a user
 gesture before playing sound).
+
+Prerequisites
+-------------
+
+The build needs nothing beyond `make` and the standard Unix tools: there is
+no data to download and nothing to generate. `make check` verifies the
+prerequisites and exits non-zero naming anything that is missing.
+
+- **Python 3** for `make serve` (its built-in `http.server`). Any 3.x.
+- **Node 20 or newer** for `make test` / `npm test`. There are no npm
+  packages to install; `package.json` lists none.
 
 Controls
 --------
@@ -103,3 +113,22 @@ audio thread does, so the tests exercise the real message protocol, phase
 coherence and click-free sweeps sample by sample. The source files export
 their classes only when loaded under Node; in the browser those exports are
 a no-op.
+
+Data sources and credits
+------------------------
+
+The project fetches no data: every wave is computed in the browser from the
+frequency, amplitude and phase you set. The speed of sound used for the
+distance axis is 343.2 m/s (dry air at 20 °C).
+
+- Developed as part of the [Scripps Classroom Connection](https://earthref.org/SCC/),
+  a fellowship program pairing graduate students with middle school teachers
+  to develop science curriculum.
+- `html/sprintf-0.7-beta1.js` is a vendored copy of
+  [sprintf() for JavaScript](http://www.diveintojavascript.com/projects/javascript-sprintf)
+  0.7-beta1 by Alexandru Marasteanu, BSD 3-clause licence (the full text is
+  at the top of the file).
+- The button icons (`html/*.svg`) and the tone icon (`html/tone_*.png`) were
+  drawn for this project.
+- Sound is synthesised with the browser's Web Audio API; no other
+  third-party code is used.
