@@ -16,6 +16,9 @@ open `index.html`, e.g.
     cd html
     python3 -m http.server 8000
 
+or `make serve`. `make dist` copies the site into `dist/`, which is how it is
+published on https://therealglf.org/projects/frequency-generator/.
+
 then browse to <http://localhost:8000/>.
 
 **Use `localhost` or `127.0.0.1`, not a bare IP or hostname.** Audio is
