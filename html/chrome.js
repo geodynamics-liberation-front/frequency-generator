@@ -465,9 +465,15 @@ function toggle_particles() {
 }
 
 function getCSSRule(selectorText) {
-  console.log(document.styleSheets);
   for (var i = 0; i < document.styleSheets.length; i++) {
-    var rules = document.styleSheets[i].cssRules;
+    var rules;
+    try {
+      rules = document.styleSheets[i].cssRules;
+    } catch (e) {
+      // A cross-origin stylesheet (the Google Fonts link) does not expose its
+      // rules; the rule we want is in the page's own <style>, so skip it.
+      continue;
+    }
 
     for (var j = 0; j < rules.length; j++) {
       if (rules[j].selectorText == selectorText) {
